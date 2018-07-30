@@ -9,6 +9,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: #fafafa;
   background-color: #333; }
+  body svg {
+    color: #333; }
 
 .content {
   padding: 10px 50px; }

@@ -2,6 +2,7 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 
 import _ from 'lodash';
+import MathJax from 'react-mathjax';
 
 import './stylesheets/svgComponents.css';
 
@@ -32,9 +33,9 @@ export const SvgPoint = ({ cx, cy, r, fill, label, ...otherProps }) => {
     <g>
       <circle cx={cx} cy={cy} r={r} fill={fill} {...otherProps} />
       {label &&
-        <text x={cx + 8} y={cy - (r + 8)} fill={fill}>
+        <foreignObject x={cx + 16} y={cy - (r + 16)}>
           {label}
-        </text>
+        </foreignObject>
       }
     </g>
   );
@@ -45,7 +46,7 @@ SvgPoint.propTypes = {
   cy: PropTypes.number.isRequired,
   r: PropTypes.number,
   fill: PropTypes.string,
-  label: PropTypes.string,
+  label: PropTypes.object,
 };
 
 SvgPoint.defaultProps = {
@@ -69,7 +70,8 @@ export const SvgSequence = ({ points, drawLines }) => {
   const svgPoints = [];
   const svgLines = [];
   _.each(points, ({ cx, cy, r, fill, label, ...otherProps }, n) => {
-    const svgPoint = <SvgPoint cx={cx} cy={cy} fill={fill} label={label || `a_${n}`} {...otherProps} key={`${n}_point`} />;
+    const mathLabel = <MathJax.Node inline formula={label || `a_${n}`} />;
+    const svgPoint = <SvgPoint cx={cx} cy={cy} fill={fill} label={mathLabel} {...otherProps} key={`${n}_point`} />;
     svgPoints.push(svgPoint);
     if (n > 0) {
       const previousPoint = points[n-1];

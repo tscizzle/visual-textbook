@@ -2,6 +2,7 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 
 import _ from 'lodash';
+import MathJax from 'react-mathjax';
 
 import SvgWidget, { SvgPoint, SvgSequence } from './svgComponents';
 
@@ -22,7 +23,7 @@ export const Limit2D = ({ hoveredEpsilon }) => {
   });
   const sequence = <SvgSequence points={sequencePoints} drawLines={true} />;
   const limitPos = { x: fullWidth * 0.75, y: fullHeight * 0.5 };
-  const limitPoint = <SvgPoint cx={limitPos.x} cy={limitPos.y} fill={RED} label="a" />;
+  const limitPoint = <SvgPoint cx={limitPos.x} cy={limitPos.y} fill={RED} label={<MathJax.Node inline formula="a" />} />;
   const neighborhoodRadius = (hoveredEpsilon || 0) * 80;
   const neighborhood = <circle className="epsilon-neighborhood" cx={limitPos.x} cy={limitPos.y} r={neighborhoodRadius} fill={YELLOW} />;
   return (

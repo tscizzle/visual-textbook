@@ -10,6 +10,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: #fafafa;
   background-color: #333;
+
+  svg {
+    color: #333;
+  }
 }
 
 .content {
