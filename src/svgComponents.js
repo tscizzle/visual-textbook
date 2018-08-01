@@ -2,9 +2,8 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 
 import _ from 'lodash';
-import MathJax from 'react-mathjax';
 
-import './stylesheets/svgComponents.css';
+import MJ from './mathjax';
 
 
 const SvgWidget = ({ width, height, children, ...otherProps }) => {
@@ -28,12 +27,13 @@ SvgWidget.defaultProps = {
 export default SvgWidget;
 
 
-export const SvgPoint = ({ cx, cy, r, fill, label, ...otherProps }) => {
+export const SvgPoint = ({ cx, cy, r, label, labelClass, bold, ...otherProps }) => {
+  const extraRadius = bold ? 0.2 * r : 0;
   return (
     <g>
-      <circle cx={cx} cy={cy} r={r} fill={fill} {...otherProps} />
+      <circle cx={cx} cy={cy} r={r + extraRadius} {...otherProps} />
       {label &&
-        <foreignObject x={cx + 16} y={cy - (r + 16)}>
+        <foreignObject x={cx + 8} y={cy - (r + 16)} width={100}>
           {label}
         </foreignObject>
       }
@@ -45,43 +45,67 @@ SvgPoint.propTypes = {
   cx: PropTypes.number.isRequired,
   cy: PropTypes.number.isRequired,
   r: PropTypes.number,
-  fill: PropTypes.string,
   label: PropTypes.object,
+  bold: PropTypes.bool,
 };
 
 SvgPoint.defaultProps = {
   r: 5,
+  bold: false,
 };
 
 
-export const SvgLine = ({ x1, y1, x2, y2, ...otherProps }) => {
-  return <line x1={x1} y1={y1} x2={x2} y2={y2} {...otherProps} />
+export const SvgBall = ({ cx, cy, r, radiusAngle, radiusLabel, ...otherProps }) => {
+  const radiusXComponent = r * Math.cos(radiusAngle);
+  const radiusYComponent = r * Math.sin(radiusAngle);
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={r} {...otherProps} />
+      {r && radiusAngle &&
+        <line x1={cx} y1={cy} x2={cx + radiusXComponent} y2={cy - radiusYComponent} pathLength={r} stroke="#555" strokeWidth={2} />
+      }
+      {r && radiusAngle && radiusLabel &&
+        <foreignObject x={cx + (radiusXComponent / 2) + 6} y={cy - (radiusYComponent / 2) - 4} width={100}>
+          {radiusLabel}
+        </foreignObject>
+      }
+    </g>
+  );
 };
 
-SvgLine.propTypes = {
-  x1: PropTypes.number.isRequired,
-  y1: PropTypes.number.isRequired,
-  x2: PropTypes.number.isRequired,
-  y2: PropTypes.number.isRequired,
+SvgBall.propTypes = {
+  cx: PropTypes.number.isRequired,
+  cy: PropTypes.number.isRequired,
+  r: PropTypes.number.isRequired,
+  radiusAngle: PropTypes.number,
+  radiusLabel: PropTypes.object,
 };
 
 
 export const SvgSequence = ({ points, drawLines }) => {
   const svgPoints = [];
-  const svgLines = [];
-  _.each(points, ({ cx, cy, r, fill, label, ...otherProps }, n) => {
-    const mathLabel = <MathJax.Node inline formula={label || `a_${n}`} />;
-    const svgPoint = <SvgPoint cx={cx} cy={cy} fill={fill} label={mathLabel} {...otherProps} key={`${n}_point`} />;
+  const lines = [];
+  _.each(points, ({ cx, cy, label, bold, fill, ...otherProps }, n) => {
+    const mathLabel = _.isNull(label) ? null : <MJ i={label || `a_${n}`} />;
+    const svgPoint = <SvgPoint cx={cx} cy={cy} label={mathLabel} bold={bold} fill={fill} {...otherProps} key={`${n}_point`} />;
     svgPoints.push(svgPoint);
     if (n > 0) {
       const previousPoint = points[n-1];
-      const svgLine = <SvgLine x1={previousPoint.cx} y1={previousPoint.cy} x2={cx} y2={cy} stroke={fill} strokeWidth={1} key={`${n}_line`} />;
-      svgLines.push(svgLine);
+      const lineBold = bold && previousPoint.bold;
+      const extraWidth = lineBold ? 2 : 0;
+      const line = <line x1={previousPoint.cx}
+                         y1={previousPoint.cy}
+                         x2={cx}
+                         y2={cy}
+                         stroke={fill}
+                         strokeWidth={1 + extraWidth}
+                         key={`${n}_line`} />;
+      lines.push(line);
     }
   });
   return (
     <g>
-      {drawLines && svgLines}
+      {drawLines && lines}
       {svgPoints}
     </g>
   );

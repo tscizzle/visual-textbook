@@ -1,3 +1,9 @@
+$dark: #333;
+
+$red: #ef675f;
+$blue: #747ffc;
+$yellow: #ffe772;
+
 html, body, #root, [data-reactroot] {
   height: 100%;
 }
@@ -9,49 +15,92 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #fafafa;
-  background-color: #333;
+  background-color: $dark;
 
   svg {
-    color: #333;
+    color: $dark;
   }
 }
 
 .content {
-  padding: 10px 50px;
+  padding: 0 0 200px;
 }
 
 .section-header {
-  display: flex;
-  justify-content: center;
+  text-align: center;
   margin: 20px 0;
-  font-size: 2.6em;
+  font-size: 2.5em;
   font-weight: 300;
+  z-index: 1;
+}
+
+.section-subheader {
+  position: sticky;
+  top: 0;
+  text-align: center;
+  padding: 20px 0;
+  font-size: 1.5em;
+  background-color: $dark;
 }
 
 .explanation-pair {
   display: flex;
-  height: 420px;
 }
 
-.visual-explanation {
-  text-align: center;
+.svg-widget {
+  border-radius: 2px;
+  background-color: #fff;
+  box-shadow: #bbb 0px 0px 5px;
+}
+
+.explanation-pair {
+  padding: 0 50px;
+}
+
+.visual-explanation svg {
+  position: sticky;
+  top: 75px;
 }
 
 .words-and-symbols-explanation {
   flex-grow: 1;
-  padding: 0 30px;
-  overflow-y: scroll;
+  margin: 0 0 0 30px;
+  padding: 10px 30px;
+  border-radius: 2px;
+  background-color: #444;
+  box-shadow: #555 0px 0px 5px;
+
+  .inline-mathjax {
+    font-size: 1.2em;
+  }
 }
 
 .centered {
   text-align: center;
 }
 
-.widget-control-link {
-  padding: 0 10px;
-  color: #a8a8ff;
+.widget-value-setter {
+  padding: 5px 10px;
+  background-color: $dark;
+
+  &:not(:first-child) {
+    border-left: solid 1px #aaa;
+  }
+
+  &.selected {
+    opacity: 0.7;
+  }
 }
 
-.epsilon-neighborhood {
-  transition: r 0.2s;
+.limit-2D-epsilon-ball {
+  transition: all 0.1s ease;
+}
+
+.limit-2D-sequence-label {
+  color: $blue;
+  font-weight: bold;
+}
+
+.inline-mathjax * {
+  outline: none;
 }

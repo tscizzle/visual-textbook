@@ -1,18 +1,29 @@
 import React, { Component } from 'react';
+import { PropTypes } from 'prop-types';
 
+import classNames from 'classnames';
 import MathJax from 'react-mathjax';
 
+import MJ from './mathjax';
+import Colors from './colors';
 import { Limit2D } from './textbookWidgets';
 
 
 class App extends Component {
   state = {
     hoveredEpsilon: null,
+    hoveredN: null,
   }
 
-  setHoveredEpsilonFunc = epsilon => {
+  setHoveredEpsilonFunc = epsilonValue => {
     return () => {
-      this.setState({ hoveredEpsilon: epsilon });
+      this.setState({ hoveredEpsilon: epsilonValue });
+    };
+  }
+
+  setHoveredNFunc = NValue => {
+    return () => {
+      this.setState({ hoveredN: NValue });
     };
   }
 
@@ -23,9 +34,12 @@ class App extends Component {
           <div className="section-header">
             Understanding the Definition of a Limit
           </div>
+          <div className="section-subheader">
+            For all <MJ i={"\\epsilon \\gt 0"} />, there exists <MJ i={"N \\in \\mathbb{N}"} /> such that <MJ i={"n \\gt N"} /> implies <MJ i={"\\lvert a_n - a \\rvert \\lt \\epsilon"} />
+          </div>
           <div className="explanation-pair">
             <div className="visual-explanation">
-              <Limit2D hoveredEpsilon={this.state.hoveredEpsilon} />
+              <Limit2D hoveredEpsilon={this.state.hoveredEpsilon} hoveredN={this.state.hoveredN} />
             </div>
             <div className="words-and-symbols-explanation">
               <p>
@@ -66,33 +80,59 @@ class App extends Component {
                 To start, consider the predicate at the end: <MJ i={"\\lvert a_n - a \\rvert \\lt \\epsilon"} />
               </p>
               <p>
-                <MJ i={"\\lvert x - a \\rvert \\lt \\epsilon"} /> is simply saying that <MJ i={"x"} /> and <MJ i={"a"} /> are less than <MJ i={"\\epsilon"} /> distance apart.
+                This is another way of saying "<MJ i={"a_n"} /> and <MJ i={"a"} /> are less than <MJ i={"\\epsilon"} /> distance apart".
               </p>
               <p>
-                The set of all <MJ i={"x"} /> that are less than <MJ i={"\\epsilon"} /> away from <MJ i={"a"} /> is what's called a "ball" or "neighborhood" around <MJ i={"a"} /> (with a radius of <MJ i={"\\epsilon"} />).
+                Being less than <MJ i={"\\epsilon"} /> away from <MJ i={"a"} /> is the same as being inside a "ball" or "neighborhood" that is centered around <MJ i={"a"} /> and has radius <MJ i={"\\epsilon"} />.
               </p>
               <p>
-                Hover each <MJ i={"\\epsilon"} /> value to see what these <MJ i={"\\epsilon"} />-neighborhoods look like:
+                Hover over each <MJ i={"\\epsilon"} /> value to see what these <MJ i={"\\epsilon"} />-neighborhoods look like:
               </p>
-              <div>
-                <a className="widget-control-link"
-                   href="#eps-1"
-                   onMouseEnter={this.setHoveredEpsilonFunc(0.5)}
-                   onMouseLeave={this.setHoveredEpsilonFunc(null)}>
-                  <MJ i={"\\epsilon = 0.5"} />
-                </a>
-                <a className="widget-control-link"
-                   href="#eps-2"
-                   onMouseEnter={this.setHoveredEpsilonFunc(1)}
-                   onMouseLeave={this.setHoveredEpsilonFunc(null)}>
-                  <MJ i={"\\epsilon = 1"} />
-                </a>
-                <a className="widget-control-link"
-                   href="#eps-3"
-                   onMouseEnter={this.setHoveredEpsilonFunc(2)}
-                   onMouseLeave={this.setHoveredEpsilonFunc(null)}>
-                  <MJ i={"\\epsilon = 2"} />
-                </a>
+              <div className="centered">
+                <WidgetValueSetter valueName={"\\epsilon"}
+                                   value={0.5}
+                                   setValueFunc={this.setHoveredEpsilonFunc}
+                                   currentValue={this.state.hoveredEpsilon} />
+                <WidgetValueSetter valueName={"\\epsilon"}
+                                   value={1}
+                                   setValueFunc={this.setHoveredEpsilonFunc}
+                                   currentValue={this.state.hoveredEpsilon} />
+                <WidgetValueSetter valueName={"\\epsilon"}
+                                   value={2}
+                                   setValueFunc={this.setHoveredEpsilonFunc}
+                                   currentValue={this.state.hoveredEpsilon} />
+              </div>
+              <p>
+                So when you see <MJ i={"\\lvert a_n - a \\rvert \\lt \\epsilon"} />, think "<MJ i={"a_n"} /> is within that yellow ball of radius <MJ i={"\\epsilon"} />".
+              </p>
+              <p>
+                Next, let's talk about <MJ i={"n \\gt N"} />
+              </p>
+              <p>
+                We all know what "greater than" means, but since we're talking about a sequence, let's make it visual.
+              </p>
+              <p>
+                <MJ i={"n"} /> here is the index for some point in the sequence. So is <MJ i={"N"} />.
+              </p>
+              <p>
+                If the index <MJ i={"n"} /> is greater than the index <MJ i={"N"} />, that means "<MJ i={"a_n"} /> is further along in the sequence than <MJ i={"a_N"} />".
+              </p>
+              <p>
+                Hover over each <MJ i={"N"} /> value to highlight all the <MJ i={"a_n"} /> that have <MJ i={"n \\gt N"} />
+              </p>
+              <div className="centered">
+                <WidgetValueSetter valueName={"N"}
+                                   value={1}
+                                   setValueFunc={this.setHoveredNFunc}
+                                   currentValue={this.state.hoveredN} />
+                <WidgetValueSetter valueName={"N"}
+                                   value={3}
+                                   setValueFunc={this.setHoveredNFunc}
+                                   currentValue={this.state.hoveredN} />
+                <WidgetValueSetter valueName={"N"}
+                                   value={5}
+                                   setValueFunc={this.setHoveredNFunc}
+                                   currentValue={this.state.hoveredN} />
               </div>
             </div>
           </div>
@@ -106,4 +146,24 @@ class App extends Component {
 export default App;
 
 
-const MJ = ({ i }) => <MathJax.Node inline formula={i} />;
+const WidgetValueSetter = ({ valueName, value, setValueFunc, currentValue }) => {
+  const selectedClass = classNames({
+    selected: value === currentValue
+  });
+  return (
+    <a className={`widget-value-setter ${selectedClass}`}
+       href="#widget"
+       onMouseEnter={setValueFunc(value)}
+       onMouseLeave={setValueFunc(null)}
+       style={{color: Colors.YELLOW}}>
+      <MJ i={`${valueName} = ${value}`} />
+    </a>
+  );
+};
+
+WidgetValueSetter.propTypes = {
+  valueName: PropTypes.string.isRequired,
+  value: PropTypes.number.isRequired,
+  setValueFunc: PropTypes.func.isRequired,
+  currentValue: PropTypes.number,
+};
