@@ -1,72 +1,153 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { PropTypes } from 'prop-types';
 
 import _ from 'lodash';
 
-import MJ from './mathjax';
+import IM from './katex';
 import Colors from './colors';
 import SvgWidget, { SvgPoint, SvgBall, SvgSequence } from './svgComponents';
 
 
-export const Limit2D = ({ hoveredEpsilon, hoveredN }) => {
-  const fullWidth = 600;
-  const fullHeight = 400;
-  const sequencePoints = [
-    { cx: fullWidth * 0.05, cy: fullHeight * 0.15, fill: Colors.BLUE },
-    { cx: fullWidth * 0.06, cy: fullHeight * 0.4, fill: Colors.BLUE },
-    { cx: fullWidth * 0.1, cy: fullHeight * 0.7, fill: Colors.BLUE },
-    { cx: fullWidth * 0.4, cy: fullHeight * 0.5, fill: Colors.BLUE },
-    { cx: fullWidth * 0.6, cy: fullHeight * 0.55, fill: Colors.BLUE },
-    { cx: fullWidth * 0.58, cy: fullHeight * 0.35, fill: Colors.BLUE },
-    { cx: fullWidth * 0.64, cy: fullHeight * 0.40, fill: Colors.BLUE },
-    { cx: fullWidth * 0.67, cy: fullHeight * 0.43, fill: Colors.BLUE },
-    { cx: fullWidth * 0.7, cy: fullHeight * 0.46, fill: Colors.BLUE, label: '…' },
-    { cx: fullWidth * 0.72, cy: fullHeight * 0.47, fill: Colors.BLUE, label: null },
-    { cx: fullWidth * 0.73, cy: fullHeight * 0.48, fill: Colors.BLUE, label: null },
-    { cx: fullWidth * 0.74, cy: fullHeight * 0.49, fill: Colors.BLUE, label: null },
-  ];
-  if (!_.isNull(hoveredN)) {
-    const start = hoveredN + 1;
-    const end = sequencePoints.length;
-    if (end > start) {
-      _.each(_.range(start, end), n => {
-        sequencePoints[n].bold = true;
+export class Limit2D extends Component {
+  static propTypes = {
+    hoveredEpsilon: PropTypes.number,
+    hoveredN: PropTypes.number,
+    pendingAnimation: PropTypes.string,
+    clearPendingAnimation: PropTypes.func.isRequired,
+  }
+
+  state = {
+    currentAnimation: null,
+    currentAnimationStep: null,
+    animationIntervalId: null,
+  }
+
+  ANIMATIONS = [
+    {
+      key: 'challengeResponse',
+      steps: [
+        { epsilon: 2, N: -1, },
+        { epsilon: 2, N: 3, },
+        { epsilon: 1, N: 3, },
+        { epsilon: 1, N: 5, },
+        { epsilon: 0.5, N: 5, },
+        { epsilon: 0.5, N: 7, },
+      ],
+      stepDelay: 2000,
+    }
+  ]
+
+  componentDidUpdate(prevProps) {
+    const { pendingAnimation, clearPendingAnimation } = this.props;
+    const isNewAnimationTriggered = prevProps.pendingAnimation !== pendingAnimation && pendingAnimation;
+    if (isNewAnimationTriggered) {
+      clearInterval(this.state.animationIntervalId);
+      clearPendingAnimation(() => {
+        this.setState({
+          currentAnimation: pendingAnimation,
+          currentAnimationStep: 0,
+          animationIntervalId: null,
+        }, () => {
+          const { stepDelay } = _.find(this.ANIMATIONS, { key: this.state.currentAnimation });
+          const intervalId = setInterval(() => {
+            const { steps } = _.find(this.ANIMATIONS, { key: this.state.currentAnimation });
+            if (this.state.currentAnimationStep > steps.length-1) {
+              clearInterval(intervalId);
+              this.setState({
+                currentAnimation: null,
+                currentAnimationStep: null,
+                animationIntervalId: null,
+              });
+            } else {
+              this.setState({ currentAnimationStep: this.state.currentAnimationStep + 1 });
+            }
+          }, stepDelay);
+          this.setState({ animationIntervalId: intervalId });
+        });
       });
     }
   }
-  const sequence = <SvgSequence points={sequencePoints} drawLines={true} />;
-  const limitPos = { x: fullWidth * 0.75, y: fullHeight * 0.5 };
-  const limitPoint = <SvgPoint cx={limitPos.x}
-                               cy={limitPos.y}
-                               label={<MJ i={"a"} />}
-                               bold={true}
-                               fill={Colors.RED} />;
-  const ballRadius = (hoveredEpsilon || 0) * 80;
-  const radiusAngle = Math.PI * (4 / 3);
-  const radiusLabel = <MJ i={`\\epsilon = ${hoveredEpsilon}`} />;
-  const ball = <SvgBall className="limit-2D-epsilon-ball"
-                        cx={limitPos.x}
-                        cy={limitPos.y}
-                        r={ballRadius}
-                        radiusAngle={radiusAngle}
-                        radiusLabel={radiusLabel}
-                        fill={Colors.YELLOW} />;
-  const sequenceLabel = (
-    <foreignObject className="limit-2D-sequence-label" x={fullWidth * 0.5} y={fullHeight * 0.2} width={300}>
-      All <MJ i={"a_n"} /> that have <MJ i={`n \\gt N = ${hoveredN}`} />
-    </foreignObject>
-  );
-  return (
-    <SvgWidget width={fullWidth} height={fullHeight}>
-      {ball}
-      {!_.isNull(hoveredN) && sequenceLabel}
-      {sequence}
-      {limitPoint}
-    </SvgWidget>
-  );
-}
 
-Limit2D.propTypes = {
-  hoveredEpsilon: PropTypes.number,
-  hoveredN: PropTypes.number,
-};
+  componentWillUnmount() {
+    clearInterval(this.state.animationIntervalId);
+  }
+
+  render() {
+    const { hoveredEpsilon, hoveredN } = this.props;
+    const { currentAnimation, currentAnimationStep } = this.state;
+    const animation = _.find(this.ANIMATIONS, { key: currentAnimation });
+    let epsilon, N;
+    if (animation) {
+      const animationStepValues = animation.steps[currentAnimationStep];
+      epsilon = animationStepValues ? animationStepValues.epsilon : hoveredEpsilon;
+      N = animationStepValues ? animationStepValues.N : hoveredN;
+    } else {
+      epsilon = hoveredEpsilon;
+      N = hoveredN;
+    }
+    console.log('epsilon', epsilon);
+    console.log('N', N);
+
+    const fullWidth = 550
+    const fullHeight = 350
+    const sequencePoints = _.map([
+      { cx: 0.05, cy: 0.15 },
+      { cx: 0.06, cy: 0.4 },
+      { cx: 0.1, cy: 0.7 },
+      { cx: 0.4, cy: 0.5 },
+      { cx: 0.6, cy: 0.55 },
+      { cx: 0.58, cy: 0.35 },
+      { cx: 0.64, cy: 0.40 },
+      { cx: 0.67, cy: 0.43 },
+      { cx: 0.7, cy: 0.46, label: '…' },
+      { cx: 0.72, cy: 0.47, label: null },
+      { cx: 0.73, cy: 0.48, label: null },
+      { cx: 0.74, cy: 0.49, label: null },
+    ], ({ cx, cy, label }) => ({
+      cx: cx * fullWidth,
+      cy: cy * fullHeight,
+      fill: Colors.BLUE,
+      label,
+    }));
+
+    if (_.isNumber(N)) {
+      const start = N + 1;
+      const end = sequencePoints.length;
+      if (end > start) {
+        _.each(_.range(start, end), n => {
+          sequencePoints[n].bold = true;
+        });
+      }
+    }
+    const sequence = <SvgSequence points={sequencePoints} drawLines={true} />;
+    const limitPos = { x: fullWidth * 0.75, y: fullHeight * 0.5 };
+    const limitPoint = <SvgPoint cx={limitPos.x}
+                                 cy={limitPos.y}
+                                 label={<IM m={"a"} />}
+                                 bold={true}
+                                 fill={Colors.RED} />;
+    const ballRadius = (epsilon || 0) * 70;
+    const radiusAngle = Math.PI * (4 / 3);
+    const radiusLabel = <IM m={`\\epsilon = ${epsilon}`} />;
+    const ball = <SvgBall className="limit-2D-epsilon-ball"
+                          cx={limitPos.x}
+                          cy={limitPos.y}
+                          r={ballRadius}
+                          radiusAngle={radiusAngle}
+                          radiusLabel={radiusLabel}
+                          fill={Colors.YELLOW} />;
+    const sequenceLabel = (
+      <foreignObject className="limit-2D-sequence-label" x={fullWidth * 0.35} y={fullHeight * 0.2} width={300}>
+        All <IM m={"a_n"} /> that have <IM m={`n \\gt N = ${N}`} />
+      </foreignObject>
+    );
+    return (
+      <SvgWidget width={fullWidth} height={fullHeight}>
+        {ball}
+        {_.isNumber(N) && sequenceLabel}
+        {sequence}
+        {limitPoint}
+      </SvgWidget>
+    );
+  }
+}

@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types';
 
 import _ from 'lodash';
 
-import MJ from './mathjax';
+import IM from './katex';
 
 
 const SvgWidget = ({ width, height, children, ...otherProps }) => {
@@ -62,7 +62,7 @@ export const SvgBall = ({ cx, cy, r, radiusAngle, radiusLabel, ...otherProps }) 
     <g>
       <circle cx={cx} cy={cy} r={r} {...otherProps} />
       {r && radiusAngle &&
-        <line x1={cx} y1={cy} x2={cx + radiusXComponent} y2={cy - radiusYComponent} pathLength={r} stroke="#555" strokeWidth={2} />
+        <line x1={cx} y1={cy} x2={cx + radiusXComponent} y2={cy - radiusYComponent} pathLength={r} stroke="#555" />
       }
       {r && radiusAngle && radiusLabel &&
         <foreignObject x={cx + (radiusXComponent / 2) + 6} y={cy - (radiusYComponent / 2) - 4} width={100}>
@@ -86,7 +86,7 @@ export const SvgSequence = ({ points, drawLines }) => {
   const svgPoints = [];
   const lines = [];
   _.each(points, ({ cx, cy, label, bold, fill, ...otherProps }, n) => {
-    const mathLabel = _.isNull(label) ? null : <MJ i={label || `a_${n}`} />;
+    const mathLabel = _.isNull(label) ? null : <IM m={label || `a_${n}`} />;
     const svgPoint = <SvgPoint cx={cx} cy={cy} label={mathLabel} bold={bold} fill={fill} {...otherProps} key={`${n}_point`} />;
     svgPoints.push(svgPoint);
     if (n > 0) {
