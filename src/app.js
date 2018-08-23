@@ -4,7 +4,7 @@ import { PropTypes } from 'prop-types';
 import classNames from 'classnames';
 
 import IM from './katex';
-import { Limit2D } from './textbookWidgets';
+import { Limit2DWithAnimations } from './textbookWidgets';
 
 
 class App extends Component {
@@ -43,10 +43,12 @@ class App extends Component {
         </div>
         <div className="explanation-pair">
           <div className="visual-explanation">
-            <Limit2D hoveredEpsilon={this.state.hoveredEpsilon}
-                     hoveredN={this.state.hoveredN}
-                     pendingAnimation={this.state.pendingAnimation}
-                     clearPendingAnimation={(callback) => this.setPendingAnimation(null, callback)} />
+            <Limit2DWithAnimations
+              hoveredEpsilon={this.state.hoveredEpsilon}
+              hoveredN={this.state.hoveredN}
+              pendingAnimation={this.state.pendingAnimation}
+              markOffPendingAnimation={(callback) => this.setPendingAnimation(null, callback)}
+            />
           </div>
           <div className="words-and-symbols-explanation">
             <p>
@@ -94,18 +96,24 @@ class App extends Component {
               Being less than <IM m={"\\epsilon"} /> away from <IM m={"a"} /> is the same as being inside a "ball" or "neighborhood" that is centered around <IM m={"a"} /> and has radius <IM m={"\\epsilon"} />.
             </p>
             <WidgetControlBox header={<span>Hover over each <IM m={"\\epsilon"} /> value to see what these <IM m={"\\epsilon"} />-neighborhoods look like</span>}>
-              <WidgetValueSetter valueName={"\\epsilon"}
-                                 value={2}
-                                 setValueFunc={this.setHoveredEpsilonFunc}
-                                 currentValue={this.state.hoveredEpsilon} />
-              <WidgetValueSetter valueName={"\\epsilon"}
-                                 value={1}
-                                 setValueFunc={this.setHoveredEpsilonFunc}
-                                 currentValue={this.state.hoveredEpsilon} />
-              <WidgetValueSetter valueName={"\\epsilon"}
-                                 value={0.5}
-                                 setValueFunc={this.setHoveredEpsilonFunc}
-                                 currentValue={this.state.hoveredEpsilon} />
+              <WidgetValueSetter
+                valueName={"\\epsilon"}
+                value={2}
+                setValueFunc={this.setHoveredEpsilonFunc}
+                currentValue={this.state.hoveredEpsilon}
+              />
+              <WidgetValueSetter
+                valueName={"\\epsilon"}
+                value={1}
+                setValueFunc={this.setHoveredEpsilonFunc}
+                currentValue={this.state.hoveredEpsilon}
+              />
+              <WidgetValueSetter
+                valueName={"\\epsilon"}
+                value={0.5}
+                setValueFunc={this.setHoveredEpsilonFunc}
+                currentValue={this.state.hoveredEpsilon}
+              />
             </WidgetControlBox>
             <p>
               So when you see <IM m={"\\lvert a_n - a \\rvert \\lt \\epsilon"} />, think
@@ -125,18 +133,24 @@ class App extends Component {
               If the index <IM m={"n"} /> is greater than the index <IM m={"N"} />, that means "<IM m={"a_n"} /> is further along in the sequence than <IM m={"a_N"} />".
             </p>
             <WidgetControlBox header={<span>Hover over each <IM m={"N"} /> value to highlight all the <IM m={"a_n"} /> that have <IM m={"n \\gt N"} /></span>}>
-              <WidgetValueSetter valueName={"N"}
-                                 value={1}
-                                 setValueFunc={this.setHoveredNFunc}
-                                 currentValue={this.state.hoveredN} />
-              <WidgetValueSetter valueName={"N"}
-                                 value={3}
-                                 setValueFunc={this.setHoveredNFunc}
-                                 currentValue={this.state.hoveredN} />
-              <WidgetValueSetter valueName={"N"}
-                                 value={5}
-                                 setValueFunc={this.setHoveredNFunc}
-                                 currentValue={this.state.hoveredN} />
+              <WidgetValueSetter
+                valueName={"N"}
+                value={1}
+                setValueFunc={this.setHoveredNFunc}
+                currentValue={this.state.hoveredN}
+              />
+              <WidgetValueSetter
+                valueName={"N"}
+                value={3}
+                setValueFunc={this.setHoveredNFunc}
+                currentValue={this.state.hoveredN}
+              />
+              <WidgetValueSetter
+                valueName={"N"}
+                value={5}
+                setValueFunc={this.setHoveredNFunc}
+                currentValue={this.state.hoveredN}
+              />
             </WidgetControlBox>
             <Divider />
             <p>
@@ -180,8 +194,10 @@ class App extends Component {
               which we said earlier meant "every point further along in the sequence than <IM m={"a_N"} /> is within that yellow ball."
             </p>
             <WidgetControlBox>
-              <WidgetAnimationTrigger label={<span>See Animation of <IM m={"\\epsilon"} /> / <IM m={"N"} /> Challenge / Response</span>}
-                                      triggerAnimation={() => this.setPendingAnimation('challengeResponse')} />
+              <WidgetAnimationTrigger
+                label={<span>See Animation of <IM m={"\\epsilon"} /> / <IM m={"N"} /> Challenge / Response</span>}
+                triggerAnimation={() => this.setPendingAnimation('challengeResponse')}
+              />
             </WidgetControlBox>
             <p>
               Combining it all in plain language, we get:
@@ -250,10 +266,12 @@ const WidgetValueSetter = ({ valueName, value, setValueFunc, currentValue }) => 
     selected: value === currentValue
   });
   return (
-    <a className={`widget-control-element widget-value-setter ${selectedClass}`}
-       href="#widget"
-       onMouseEnter={setValueFunc(value)}
-       onMouseLeave={setValueFunc(null)}>
+    <a
+      className={`widget-control-element widget-value-setter ${selectedClass}`}
+      href="#widget"
+      onMouseEnter={setValueFunc(value)}
+      onMouseLeave={setValueFunc(null)}
+    >
       <IM m={`${valueName} = ${value}`} />
     </a>
   );

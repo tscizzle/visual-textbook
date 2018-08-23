@@ -28,7 +28,7 @@ export default SvgWidget;
 
 
 export const SvgPoint = ({ cx, cy, r, label, labelClass, bold, ...otherProps }) => {
-  const extraRadius = bold ? 0.2 * r : 0;
+  const extraRadius = bold ? 0.3 * r : 0;
   return (
     <g>
       <circle cx={cx} cy={cy} r={r + extraRadius} {...otherProps} />
@@ -62,10 +62,23 @@ export const SvgBall = ({ cx, cy, r, radiusAngle, radiusLabel, ...otherProps }) 
     <g>
       <circle cx={cx} cy={cy} r={r} {...otherProps} />
       {r && radiusAngle &&
-        <line x1={cx} y1={cy} x2={cx + radiusXComponent} y2={cy - radiusYComponent} pathLength={r} stroke="#555" />
+        (
+          <line
+            x1={cx}
+            y1={cy}
+            x2={cx + radiusXComponent}
+            y2={cy - radiusYComponent}
+            pathLength={r}
+            stroke="#555"
+          />
+        )
       }
       {r && radiusAngle && radiusLabel &&
-        <foreignObject x={cx + (radiusXComponent / 2) + 6} y={cy - (radiusYComponent / 2) - 4} width={100}>
+        <foreignObject
+          x={cx + (radiusXComponent / 2) + 6}
+          y={cy - (radiusYComponent / 2) - 4}
+          width={100}
+        >
           {radiusLabel}
         </foreignObject>
       }
@@ -87,19 +100,32 @@ export const SvgSequence = ({ points, drawLines }) => {
   const lines = [];
   _.each(points, ({ cx, cy, label, bold, fill, ...otherProps }, n) => {
     const mathLabel = _.isNull(label) ? null : <IM m={label || `a_${n}`} />;
-    const svgPoint = <SvgPoint cx={cx} cy={cy} label={mathLabel} bold={bold} fill={fill} {...otherProps} key={`${n}_point`} />;
+    const svgPoint = (
+      <SvgPoint
+        cx={cx}
+        cy={cy}
+        label={mathLabel}
+        bold={bold}
+        fill={fill} {...otherProps}
+        key={`${n}_point`}
+      />
+    );
     svgPoints.push(svgPoint);
     if (n > 0) {
       const previousPoint = points[n-1];
       const lineBold = bold && previousPoint.bold;
-      const extraWidth = lineBold ? 2 : 0;
-      const line = <line x1={previousPoint.cx}
-                         y1={previousPoint.cy}
-                         x2={cx}
-                         y2={cy}
-                         stroke={fill}
-                         strokeWidth={1 + extraWidth}
-                         key={`${n}_line`} />;
+      const extraWidth = lineBold ? 3 : 0;
+      const line = (
+        <line
+          x1={previousPoint.cx}
+          y1={previousPoint.cy}
+          x2={cx}
+          y2={cy}
+          stroke={fill}
+          strokeWidth={1 + extraWidth}
+          key={`${n}_line`}
+        />
+      );
       lines.push(line);
     }
   });

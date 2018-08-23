@@ -3,10 +3,9 @@ $dark: #333;
 $red: #ef675f;
 $blue: #747ffc;
 $yellow: #fff099;
+$green: #4fcc84;
 
-// html, body, #root, [data-reactroot] {
-//   height: 100%;
-// }
+$widgetBorderRadius: 2px;
 
 body {
   margin: 0;
@@ -24,6 +23,11 @@ body {
 
 .clickable {
   cursor: pointer;
+
+  &.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
 
   &:hover {
     opacity: 0.9;
@@ -56,7 +60,7 @@ body {
 }
 
 .svg-widget {
-  border-radius: 2px;
+  border-radius: $widgetBorderRadius;
   background-color: #fff;
   box-shadow: #bbb 0px 0px 5px;
 }
@@ -71,7 +75,7 @@ body {
   height: 525px;
   margin: 0 0 0 30px;
   padding: 10px 30px;
-  border-radius: 2px;
+  border-radius: $widgetBorderRadius;
   background-color: #555;
   box-shadow: #666 0px 0px 5px;
   overflow-y: scroll;
@@ -99,7 +103,7 @@ body {
 .widget-control-box {
   padding: 20px;
   box-shadow: $dark 0px 0px 5px;
-  border-radius: 2px;
+  border-radius: $widgetBorderRadius;
   background-color: #444;
   color: $yellow;
 }
@@ -145,4 +149,30 @@ body {
 .limit-2D-sequence-label {
   color: $blue;
   font-weight: bold;
+}
+
+.animation-widget {
+  position: relative;
+}
+
+.animation-progress-control {
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+  margin: 10px;
+  color: $green;
+
+  .play-animation, .pause-animation {
+    margin: 0 0.5em;
+  }
+}
+
+.animation-progress-bar {
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  height: 6px;
+  background-color: $green;
+  border-radius: $widgetBorderRadius;
+  transition: width 0.15s ease-out;
 }
